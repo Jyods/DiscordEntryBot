@@ -1,5 +1,7 @@
 import os 
 import discord
+import time
+import asyncio
 from dotenv import load_dotenv
 
 #Lade die .env Datei
@@ -24,6 +26,29 @@ async def play(ctx):
     audio_source = discord.FFmpegPCMAudio(r"Sounds\UWU.mp3")
     voice_client.play(audio_source)
     await ctx.respond('Ich spiele jetzt ein Soundfile')
+
+#Erstelle einen command der ein Lied loopt
+@bot.command()
+async def loop(ctx):
+    voice_client:discord.VoiceClient = discord.utils.get(bot.voice_clients, guild=ctx.guild)
+    audio_source = discord.FFmpegPCMAudio(r"Sounds\UWU.mp3")
+    #loope das Lied unendlich
+    voice_client.play(audio_source, after=lambda e: loop(ctx))
+    print('Looping')
+    await ctx.respond('Ich spiele jetzt ein Soundfile')
+
+#Erstelle einen command der einen bestimmten Song abspielt, und nach der angegebenen Zeit den author des commands auch in den Voicechannel bringt
+@bot.command()
+async def playandmove(ctx, channel: discord.VoiceChannel, time: int):
+    await channel.connect()
+    await ctx.respond('Ich bin jetzt im Channel')
+    voice_client:discord.VoiceClient = discord.utils.get(bot.voice_clients, guild=ctx.guild)
+    audio_source = discord.FFmpegPCMAudio(r"Sounds\UWU.mp3")
+    voice_client.play(audio_source)
+    await ctx.respond('Ich spiele jetzt ein Soundfile')
+    await asyncio.sleep(time)
+    #move den author des commands in den Voicechannel
+    await ctx.author.move_to(channel)
 
 #erstelle einen command der den Bot aus dem Voicechannel kickt
 @bot.command()
